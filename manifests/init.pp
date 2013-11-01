@@ -1,5 +1,5 @@
 #init.pp
-## Requires Modules puppetlabs-apache and interlegis/puppet-git
+## Require Modules puppetlabs/puppetlabs-apache and interlegis/puppet-git
 
 class moodle ( 	$source = "https://github.com/moodle/moodle",
 		$installdir = "/opt",
@@ -18,7 +18,7 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
 		$adminusername = 'admin',
 	) {
 
-	if !$dbhost or !dbuser or !$dbpass {
+	if !$dbhost or !$dbuser or !$dbpass {
 		fail("The following variables are mandatory: dbhost, dbuser, dbpass")
 	}
 
