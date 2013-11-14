@@ -105,7 +105,7 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
 	# Moodle Cron
 	$cron_i = 5*fqdn_rand(2)
 	cron { "admin cron.php":
-                command => "/usr/bin/php $installdir/moodle/admin/cron.php",
+                command => "/usr/bin/php $installdir/moodle/admin/cli/cron.php",
                 minute => [0+$cron_i,10+$cron_i,20+$cron_i,30+$cron_i,40+$cron_i,50+$cron_i],
                 ensure => present,
                 environment => [
