@@ -14,9 +14,15 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
 		$dbpass = false,
 		$dbprefix = 'mdl_',
 		$wwwroot = "http://$fqdn",
-		$dataroot = "$installdir/moodledata",
+		$dataroot = "",
 		$adminusername = 'admin',
+                $reports = {}, 
+                $tools = {},
+                $enrols = {},
+                $blocks = {},
+                $mods = {},
 	) {
+
 
 	if !$dbhost or !$dbuser or !$dbpass {
 		fail("The following variables are mandatory: dbhost, dbuser, dbpass")
@@ -114,5 +120,22 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
                 ],
                 require => Git::Clone["moodle"],
         }
+
+        # Create defines
+        validate_hash($reports)
+        create_resources(moodle::report,$reports)
+
+        validate_hash($mods)
+        create_resources(moodle::mod,$mods)
+
+        validate_hash($blocks)
+        create_resources(moodle::block,$blocks)
+
+        validate_hash($enrols)
+        create_resources(moodle::enrol,$enrols)
+        
+        validate_hash($tools)
+        create_resources(moodle::tool,$tools)
+        
 
 }
