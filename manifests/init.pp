@@ -35,6 +35,7 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
 		exec { "create installdir":
 			command => "mkdir -p $installdir",
 			unless => "test -d $installdir",
+                        path => ['/usr/local/sbin','/usr/local/bin','/usr/sbin','/usr/bin','/sbin','/bin']
 		}
 
 		git::clone { "moodle":
