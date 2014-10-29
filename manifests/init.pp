@@ -38,18 +38,18 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
                         path => ['/usr/local/sbin','/usr/local/bin','/usr/sbin','/usr/bin','/sbin','/bin']
 		}
 
-		git::clone { "moodle":
-                	source => $source,
-                	localtree => "$installdir",
-			branch => $gitbranch,
-			require => Exec["create installdir"],
-        	}
+                vcsrepo { "$installdir/moodle":
+                	ensure   => present,
+			provider => git,
+			source   => $source,
+			revision => $gitbranch,
+		}
 	}
 
 	file { "$installdir/moodledata":
 		ensure => directory,
 		owner => 'www-data', group => 'root', mode => '664',
-		require => Git::Clone["moodle"],
+		require => Vcsrepo["$installdir/moodle"],
 	}
 
 	class { 'apache':
@@ -95,7 +95,7 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
 	file { "$installdir/moodle/config.php":
 		owner => 'root', group => 'www-data', mode => '440',
 		content => template('moodle/config.php.erb'),
-		require => Git::Clone["moodle"],
+		require => Vcsrepo["$installdir/moodle"],
 	}
 
 	# PHP Cache Config
@@ -118,8 +118,8 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
                 environment => [
                         "MAILTO=$serveradmin",
                         "SHELL=/bin/bash",
-                ],
-                require => Git::Clone["moodle"],
+                ],		
+		require => Vcsrepo["$installdir/moodle"],
         }
 
         # Create defines
