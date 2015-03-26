@@ -21,6 +21,7 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
                 $enrols = {},
                 $blocks = {},
                 $mods = {},
+                $themes = {},
 	) {
 
 
@@ -99,15 +100,15 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
 	}
 
 	# PHP Cache Config
-	php::module { [ 'apc' ]: }
-    	php::module::ini { 'apc':
-      		settings => {
-        		'apc.enabled'      => '1',
-        		'apc.shm_segments' => '1',
-        		'apc.shm_size'     => '128M',
-			'apc.stat'	   => '0',	
-      		}
-    	}
+	#php::module { [ 'apc' ]: }
+    	#php::module::ini { 'apc':
+      	#	settings => {
+        #		'apc.enabled'      => '1',
+        #		'apc.shm_segments' => '1',
+        #		'apc.shm_size'     => '128M',
+	#		'apc.stat'	   => '0',	
+      	#	}
+    	#}
 
 	# Moodle Cron
 	$cron_i = 5*fqdn_rand(2)
@@ -137,6 +138,9 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
         
         validate_hash($tools)
         create_resources(moodle::tool,$tools)
+
+	validate_hash($themes)
+        create_resources(moodle::theme,$themes)
         
 
 }
