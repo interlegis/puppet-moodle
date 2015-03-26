@@ -20,10 +20,11 @@ define moodle::addon (	$source = false,
 	}	
 
 	if '.git' in $source {
-		git::clone { $name:
-                	source => $source,
-                	localtree => "${moodle::installdir}/moodle/$destfolder",
-        	}	
+                vcsrepo { "${moodle::installdir}/moodle/$destfolder/$name":
+                        ensure   => present,
+                        provider => git,
+                        source   => $source,
+                }
 	} else {	
 		archive { $name:
 			ensure => present,
