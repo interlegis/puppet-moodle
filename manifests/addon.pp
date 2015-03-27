@@ -24,6 +24,7 @@ define moodle::addon (	$source = false,
                         ensure   => present,
                         provider => git,
                         source   => $source,
+                        require  => Vcsrepo["${moodle::installdir}/moodle"],
                 }
 	} else {	
 		archive { $name:
@@ -32,7 +33,9 @@ define moodle::addon (	$source = false,
 			target => "${moodle::installdir}/moodle/$destfolder",
 			checksum => false,
 			extension => inline_template("<%= source.rpartition('.')[2] %>"),
-			require => Package['unzip'],
+			require => [ Package['unzip'],
+                                     Vcsrepo["${moodle::installdir}/moodle"]
+                                   ],
 		}
 	}	
 }

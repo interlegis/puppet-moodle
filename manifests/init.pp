@@ -3,7 +3,7 @@
 
 class moodle ( 	$source = "https://github.com/moodle/moodle",
 		$installdir = "/opt",
-		$gitbranch = "MOODLE_25_STABLE",
+		$gitbranch = "MOODLE_28_STABLE",
 		$vhostname = $fqdn,
 		$serveradmin = "admin@$domain",
 		$dbtype = 'pgsql',
@@ -22,6 +22,7 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
                 $blocks = {},
                 $mods = {},
                 $themes = {},
+                $profilefields = {},
 	) {
 
 
@@ -58,6 +59,8 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
 		keepalive => 'off',
 		keepalive_timeout => '4',
 		timeout => '45',
+                default_vhost => false,
+                default_ssl_vhost => false,
         }
         include apache::mod::php
 	include apache::mod::expires
@@ -85,13 +88,14 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
         }
 
 	# Install package requirements
-	$prereqs = [ "php5-curl", "php5-pgsql", "php5-gd", "php5-xmlrpc", "php5-intl" ]
-  	define pkgpreq {
-    		if !defined(Package[$title]) {
-      			package { $title: ensure => present; }
-		}
-    	}
-  	pkgpreq {$prereqs: }
+	$prereqs = [ 'php5-curl', 
+                     'php5-pgsql', 
+                     'php5-gd', 
+                     'php5-xmlrpc', 
+                     'php5-intl', 
+                     'ghostscript', 
+                   ]
+        ensure_packages($prereqs)
 
 	file { "$installdir/moodle/config.php":
 		owner => 'root', group => 'www-data', mode => '440',
@@ -100,15 +104,20 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
 	}
 
 	# PHP Cache Config
-	#php::module { [ 'apc' ]: }
-    	#php::module::ini { 'apc':
-      	#	settings => {
-        #		'apc.enabled'      => '1',
-        #		'apc.shm_segments' => '1',
-        #		'apc.shm_size'     => '128M',
-	#		'apc.stat'	   => '0',	
-      	#	}
-    	#}
+	php::module { [ 'opcache' ]: }
+    	php::module::ini { 'opcache':
+      		settings => {
+                        'zend_extension'                => '/usr/lib/php5/20121212/opcache.so',
+                        'opcache.enable'                => '1',
+                        'opcache.memory_consumption'    => '512',
+                        'opcache.max_accelerated_files' => '4000',
+                        'opcache.revalidate_freq'       => '60',
+                        'opcache.use_cwd'               => '1',
+                        'opcache.validate_timestamps'   => '1',
+                        'opcache.save_comments'         => '1',
+                        'opcache.enable_file_override'  => '0',
+      		}
+    	}
 
 	# Moodle Cron
 	$cron_i = 5*fqdn_rand(2)
@@ -142,5 +151,7 @@ class moodle ( 	$source = "https://github.com/moodle/moodle",
 	validate_hash($themes)
         create_resources(moodle::theme,$themes)
         
+	validate_hash($profilefields)
+        create_resources(moodle::profilefield,$profilefields)
 
 }
